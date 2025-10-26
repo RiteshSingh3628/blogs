@@ -10,13 +10,18 @@
     "#config/*": "./config/*",
     "#routes/*": "./routes/*",
     "#models/*": "./models/*",
-    "#controllers/*": "./controllers/*"
+    "#controllers/*": "./controllers/*",
+    "#utils/*": "./utils/*",
+    "#services/*":"./services/*",
+    "#helper/*":"./helper/*"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "run dev": "nodemon server.js"
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
