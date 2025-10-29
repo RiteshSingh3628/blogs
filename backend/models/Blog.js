@@ -1,18 +1,27 @@
 import mongoose from "mongoose";
 
-const postSchema = new mongoose.Schema(
+const blogSchema = new mongoose.Schema(
   {
     title: {
       type: String,
       required: true,
       trim: true,
     },
+    slug:{
+      type:String,
+      required:true,
+      unique:true
+    },
+    deck:{
+      type:String,
+      required:true
+    },
     content: {
       type: String,
       required: true,
     },
     image: {
-      type: String, // Optional: Cloudinary or local URL
+      type: String,
     },
     author: {
       type: mongoose.Schema.Types.ObjectId,
@@ -38,4 +47,15 @@ const postSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("Post", postSchema);
+// Optional: auto-generate slug from title (if you want)
+blogSchema.pre("validate", function (next) {
+  if (this.title && !this.slug) {
+    this.slug = this.title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-") // replace spaces/special chars
+      .replace(/(^-|-$)+/g, ""); // remove trailing hyphens
+  }
+  next();
+});
+
+export default mongoose.model("Post", blogSchema);
