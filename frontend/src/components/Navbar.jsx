@@ -13,7 +13,7 @@ import { Link } from 'react-router-dom';
 
 function Navbar() {
   return (
-    <nav className="bg-transparent absolute sticky w-full p-3">
+    <nav className="absolute top-0 z-10 bg-amber-50 w-full p-3">
       <div className="flex items-center justify-between">
         {/* Left side */}
         <div className="flex items-center gap-3">
