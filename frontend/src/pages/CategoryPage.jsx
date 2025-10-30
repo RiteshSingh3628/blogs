@@ -1,14 +1,10 @@
-import React from "react";
+import React from 'react'
 
-const BlogLayout = () => {
-  const trimData = (data, len) => {
-    let arrayData = data.split(/\s+/);
-    if (arrayData.length > len) {
-      return arrayData.slice(0, len).join(" ");
-    }
-    return arrayData.join(" ");
-  };
-  const blogs = [
+
+
+function CategoryPage() {
+
+    const blogs = [
     {
       id: 1,
       category: "THE AI ISSUE",
@@ -63,78 +59,16 @@ const BlogLayout = () => {
         "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&h=300&fit=crop",
     },
   ];
-
-  const heroBlog = blogs[0];
-  const otherBlogs = blogs.slice(1);
-
+   
+    const trimData = (data, len) => {
+    let arrayData = data.split(/\s+/);
+    if (arrayData.length > len) {
+      return arrayData.slice(0, len).join(" ");
+    }
+    return arrayData.join(" ");
+  };
   return (
-    <div className="min-h-screen bg-white text-white">
-      {/* HERO SECTION */}
-      <div className="relative w-full h-[60vh] sm:h-[70vh] lg:h-[80vh] overflow-hidden">
-        <img
-          src={heroBlog.image}
-          alt={heroBlog.title}
-          className="w-full h-full object-cover"
-        />
-
-        {/* Vignette Overlays */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background: `
-              linear-gradient(to right, rgba(0,0,0,0.7), transparent),
-              linear-gradient(to left, rgba(0,0,0,0.7), transparent)
-            `,
-          }}
-        ></div>
-
-        {/* Text Overlay */}
-        <div className="absolute bottom-10 left-6 sm:left-10 max-w-xl px-4">
-          <p className="font-bold font-mono text-sm tracking-widest text-gray-300">
-            {heroBlog.category}
-          </p>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mt-2">
-            {heroBlog.title}
-          </h1>
-          <p className="hidden sm:block text-sm sm:text-base text-gray-300 mt-3">
-            {heroBlog.description}
-          </p>
-          <p className="text-xs sm:text-sm mt-2 text-gray-400">
-            {heroBlog.date}
-          </p>
-        </div>
-      </div>
-
-      {/* OTHER BLOGS GRID */}
-      <div className="px-6 bg-black sm:px-10 lg:px-16 py-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {otherBlogs.map((blog) => (
-            <div
-              key={blog.id}
-              className="flex items-center  border-r justify-between gap-3 group cursor-pointer"
-            >
-              <div className="flex-1">
-                <p className="text-xs font-bold tracking-widest text-gray-400 mb-1">
-                  {blog.category}
-                </p>
-                <h3 className="text-base sm:text-lg font-semibold mb-1 group-hover:text-gray-200 transition">
-                  {blog.title}
-                </h3>
-                <p className="text-xs text-gray-500">{blog.date}</p>
-              </div>
-              <div className="w-16 h-16 sm:w-20 sm:h-20 overflow-hidden rounded-lg flex-shrink-0">
-                <img
-                  src={blog.image}
-                  alt={blog.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* TRENDING SECTION */}
+    <div>
       <div className="flex flex-col lg:flex-row min-h-[50vh] bg-white text-black">
         {/* Left side */}
         <div className="flex-1 lg:flex-3/4 border-t-2 border-black mx-6 sm:mx-10 mt-10">
@@ -253,29 +187,8 @@ const BlogLayout = () => {
         </div>
         <hr className=" text-gray-200 text-sm my-2" />
       </div>
-
-      {/* Exclusive Post */}
-      <div className="flex flex-col min-h-[50vh] m-10 bg-white text-black">
-        <div className=" relative p-5 border-t-2 ">
-          <h3 className="bg-black absolute left-0 top-0   text-white font-bold text-sm uppercase px-3 py-1 w-fit -mt-3">
-            Exclusive
-          </h3>
-        </div>
-
-        <div className="flex w-full border">
-            <div className="flex p-10">
-                <div className="flex-2/3">
-                  <img src={blogs[0].image} alt=""/>
-                </div>
-                <div className="flex-1/3 ">
-                  <div className="text-2xl font-custom text-black " >{blogs[0].title}</div>
-
-                </div>
-            </div>
-        </div>
-      </div>
     </div>
-  );
-};
+  )
+}
 
-export default BlogLayout;
+export default CategoryPage
