@@ -5,8 +5,7 @@ const connectDB = async () => {
   console.time("⏱️ Database connection time");
 
   try {
-    await mongoose.connect(config.DB_URI);
-
+    await mongoose.connect(config.REMOTE_DB_URI);
     console.log("✅ Database connected successfully:", mongoose.connection.name);
   } catch (error) {
     console.error("❌ Database connection failed:", error.message);

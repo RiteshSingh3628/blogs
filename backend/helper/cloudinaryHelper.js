@@ -14,7 +14,7 @@ export const uploadImage = async (filePath) => {
         },
       ],
     });
-
+    console.log(result)
     await fs.unlink(filePath).catch(() => {});
     return result.secure_url;
 
