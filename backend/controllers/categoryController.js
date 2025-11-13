@@ -45,6 +45,7 @@ export const getAllCategory = async (req, res) => {
     if (result?.status === false) {
       return errorResponse(res, 400, result.message);
     }
+
     return successResponse(res, result.data, result.message, 200);
   } catch (error) {
     console.log("category controller error: ", error);

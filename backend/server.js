@@ -3,10 +3,14 @@ import config  from '#config/config.js';
 import connectDB from '#config/dbConfig.js';
 import mongoose from 'mongoose';
 import api from '#routes/api.js';
+import cors from 'cors';
 const app = express();
 
 // Middleware to parse JSON requests
 app.use(express.json());
+
+// cors
+app.use(cors())
 
 app.use('/api',api);
 
