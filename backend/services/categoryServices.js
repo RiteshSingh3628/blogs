@@ -1,5 +1,4 @@
 import Category from "#models/Category.js";
-import { set } from "mongoose";
 
 export const addCategory = async(body) => {
   try {
@@ -87,7 +86,7 @@ export const deleteCategory =async (body) => {
 
 export const getAllCategory =async () => {
   try {
-    const cat = Category.find().lean;
+    const cat = await Category.find().lean();
     return { status: true, message: "got category successfully", data: cat };
   } catch (error) {
     console.log("error getting category data:", error);

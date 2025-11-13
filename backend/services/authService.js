@@ -24,7 +24,8 @@ export const register = async (body) => {
   }
 };
 
-export const login = async ({ email, password }) => {
+export const login = async (body) => {
+  const { email, password } = body;
   try {
     if (!email || !password) {
       return { status: "error", message: "All fields required" };
@@ -40,9 +41,15 @@ export const login = async ({ email, password }) => {
       return { status: "error", message: "Invalid email or password" };
     }
 
+    const safeData = {
+      name: user.username,
+      email:user.email,
+
+    }
+
     const token = generateToken({ id: user._id });
 
-    return { status: "success", data: { token } };
+    return { status: "success", data: { token, safeData} };
   } catch (error) {
     console.error("Error in login service:",error);
   }

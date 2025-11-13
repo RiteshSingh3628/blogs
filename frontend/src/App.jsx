@@ -1,23 +1,39 @@
-import HomePage from './pages/HomePage'
-import Navbar from './components/Navbar'
-import { BrowserRouter,Routes,Route } from "react-router-dom";
-import Footer from './components/Footer';
-import CategoryPage from './pages/CategoryPage';
-import NotFound from './pages/NotFound';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import HomePage from "./pages/HomePage";
+import CategoryPage from "./pages/CategoryPage";
+import LoginPage from "./pages/LoginPage";
+import Profile from "./pages/Profile";
+import NotFound from "./pages/NotFound";
+import ProtectedRoutes from "./components/ProtectedRoutes";
+import AuthProvider from "./context/AuthProvider";
 
-function App() {
+const App = () => {
   return (
-    <BrowserRouter>
-      <Navbar/>
-      <Routes>
-        <Route path='/' element={<HomePage/>}/>
-        <Route path='/category/:param' element={<CategoryPage/>}/>
-        <Route path="*" element={<NotFound/>} />
-      </Routes>
-      <Footer/>
-      
-    </BrowserRouter>
-  )
-}
+    <AuthProvider>
+      <BrowserRouter>
+        <Navbar />
+        <main className="min-h-screen">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/category/:param" element={<CategoryPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoutes>
+                  <Profile />
+                </ProtectedRoutes>
+              }
+            />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </main>
+        <Footer />
+      </BrowserRouter>
+    </AuthProvider>
+  );
+};
 
-export default App
+export default App;
