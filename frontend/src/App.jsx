@@ -8,6 +8,7 @@ import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import ProtectedRoutes from "./components/ProtectedRoutes";
 import AuthProvider from "./context/AuthProvider";
+import SingleBlogPage from "./pages/SingleBlogPage";
 
 const App = () => {
   return (
@@ -19,6 +20,7 @@ const App = () => {
             <Route path="/" element={<HomePage />} />
             <Route path="/category/:param" element={<CategoryPage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/blog/:slug" element={<SingleBlogPage/>}/>
             <Route
               path="/profile"
               element={

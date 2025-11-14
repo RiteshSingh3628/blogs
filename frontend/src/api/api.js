@@ -23,7 +23,7 @@ API.interceptors.request.use(
 );
 
 
-// authenticaion API
+// authentication API
 export const authApi = {
     login: (data)=> API.post("/auth/login",data),
     logout:null,
@@ -33,7 +33,8 @@ export const authApi = {
 }
 // blogs api
 export const blogApi = {
-    getAllBlog:()=> API.get("/blog/all"),
+    getAllBlog:()=> API.get("/blog/"),
+    singleBlog:(slug)=>API.get(`/blog/${slug}`)
 }
 
 export const categoryApi = {
