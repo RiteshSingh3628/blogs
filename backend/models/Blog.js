@@ -7,14 +7,14 @@ const blogSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    slug:{
-      type:String,
-      required:true,
-      unique:true
+    slug: {
+      type: String,
+      required: true,
+      unique: true,
     },
-    deck:{
-      type:String,
-      required:true
+    deck: {
+      type: String,
+      required: true,
     },
     content: {
       type: String,
@@ -34,13 +34,28 @@ const blogSchema = new mongoose.Schema(
     },
     category: {
       type: mongoose.Schema.Types.ObjectId,
-      ref:"Category",
+      ref: "Category",
       default: "General",
     },
     likes: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
+      },
+    ],
+    views: {
+      type: Number,
+      default: 0,
+    },
+    report: [
+      {
+        type: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+        reason: {
+          type: String,
+        },
       },
     ],
   },

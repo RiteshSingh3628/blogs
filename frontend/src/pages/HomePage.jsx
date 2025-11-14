@@ -1,14 +1,33 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { blogApi } from "../api/api";
+import MostPopularSection from "../loadingTamplets/MostPupularSection";
+import { Link } from "react-router-dom";
 
 const BlogLayout = () => {
+  const [loading, setLoading] = useState({
+    mostPopular: false,
+    newBlogs: false,
+    allBlogs: true, // Start with true since we fetch on mount
+  });
+  const [data, setData] = useState({
+    newBlogs: null,
+    allBlogs: null,
+    error: null,
+  });
+
+  // Safe data trim function
   const trimData = (data, len) => {
+    if (!data || typeof data !== "string") return "";
+
     let arrayData = data.split(/\s+/);
     if (arrayData.length > len) {
-      return arrayData.slice(0, len).join(" ");
+      return arrayData.slice(0, len).join(" ") + "...";
     }
     return arrayData.join(" ");
   };
-  const blogs = [
+
+  // Default fallback data
+  const defaultBlogs = [
     {
       id: 1,
       category: "THE AI ISSUE",
@@ -21,6 +40,7 @@ const BlogLayout = () => {
       isHero: true,
       author: "Ritesh",
     },
+
     {
       id: 2,
       category: "AI AS THERAPIST",
@@ -64,16 +84,88 @@ const BlogLayout = () => {
     },
   ];
 
-  const heroBlog = blogs[0];
-  const otherBlogs = blogs.slice(1);
+  // API call for all blogs with proper error handling
+  const fetchAllBlogs = async () => {
+    setLoading((prev) => ({ ...prev, allBlogs: true }));
+    setData((prev) => ({ ...prev, error: null }));
+
+    try {
+      const res = await blogApi.getAllBlog();
+
+      if (res?.status === 200 || res?.statusText === "OK") {
+        const blogs = res?.data?.data?.blogs || defaultBlogs;
+        console.log("blogs", blogs);
+        setData((prev) => ({
+          ...prev,
+          allBlogs: blogs,
+        }));
+      } else {
+        throw new Error("Invalid response format");
+      }
+    } catch (error) {
+      console.error("Error fetching blogs:", error);
+      setData((prev) => ({
+        ...prev,
+        allBlogs: defaultBlogs,
+        error: "Failed to load blogs. Showing default content.",
+      }));
+    } finally {
+      setLoading((prev) => ({ ...prev, allBlogs: false }));
+    }
+  };
+
+  useEffect(() => {
+    fetchAllBlogs();
+  }, []);
+
+  // Safe data accessors
+  const allBlogs = data.allBlogs || defaultBlogs;
+  const heroBlog = allBlogs[0] || defaultBlogs[0];
+  const otherBlogs = allBlogs.slice(1,5);
+
+  const getDateFun = (date) => {
+    const d = new Date(date);
+    const day = d.getDate().toString().padStart(2, "0");
+    const month = d.toLocaleString("default", { month: "short" }); // e.g., "Aug"
+    const year = d.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
+  // Safe image component
+  const SafeImage = ({
+    src,
+    alt,
+    className,
+    fallbackSrc = "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=300&fit=crop",
+  }) => (
+    <img
+      src={src || fallbackSrc}
+      alt={alt || "Blog image"}
+      className={className}
+      onError={(e) => {
+        e.target.src = fallbackSrc;
+      }}
+    />
+  );
+
+  if (loading.allBlogs) {
+    return <MostPopularSection />;
+  }
 
   return (
     <div className="min-h-screen bg-white text-white">
+      {/* Error Banner */}
+      {data.error && (
+        <div className="bg-yellow-500 text-black p-4 text-center">
+          {data.error}
+        </div>
+      )}
+
       {/* HERO SECTION */}
       <div className="relative w-full h-[60vh] sm:h-[70vh] lg:h-[80vh] overflow-hidden">
-        <img
-          src={heroBlog.image}
-          alt={heroBlog.title}
+        <SafeImage
+          src={heroBlog?.image}
+          alt={heroBlog?.title}
           className="w-full h-full object-cover"
         />
 
@@ -91,16 +183,18 @@ const BlogLayout = () => {
         {/* Text Overlay */}
         <div className="absolute bottom-10 left-6 sm:left-10 max-w-xl px-4">
           <p className="font-bold font-mono text-sm tracking-widest text-gray-300">
-            {heroBlog.category}
+            {heroBlog?.category?.name || "CATEGORY"}
           </p>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mt-2">
-            {heroBlog.title}
+          <Link to={`/blog/${heroBlog?.slug}`}>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mt-2">
+            {heroBlog?.title || "Blog Title"}
           </h1>
+          </Link>
           <p className="hidden sm:block text-sm sm:text-base text-gray-300 mt-3">
-            {heroBlog.description}
+            {heroBlog?.deck || "Blog description"}
           </p>
           <p className="text-xs sm:text-sm mt-2 text-gray-400">
-            {heroBlog.date}
+            {getDateFun(heroBlog?.createdAt) || "Date not available"}
           </p>
         </div>
       </div>
@@ -111,19 +205,21 @@ const BlogLayout = () => {
           {otherBlogs.map((blog) => (
             <div
               key={blog.id}
-              className="flex items-center  border-r justify-between gap-3 group cursor-pointer"
+              className="flex items-center border-r justify-between gap-3 group cursor-pointer"
             >
               <div className="flex-1">
                 <p className="text-xs font-bold tracking-widest text-gray-400 mb-1">
-                  {blog.category}
+                  {blog.category?.name}
                 </p>
-                <h3 className="text-base sm:text-lg font-semibold mb-1 group-hover:text-gray-200 transition">
+                <Link to={`/blog/${blog.slug}`}>
+                  <h3 className="text-base sm:text-lg font-semibold mb-1 group-hover:text-gray-200 transition">
                   {blog.title}
                 </h3>
+                </Link>
                 <p className="text-xs text-gray-500">{blog.date}</p>
               </div>
               <div className="w-16 h-16 sm:w-20 sm:h-20 overflow-hidden rounded-lg flex-shrink-0">
-                <img
+                <SafeImage
                   src={blog.image}
                   alt={blog.title}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -141,25 +237,25 @@ const BlogLayout = () => {
           <h3 className="bg-black text-white font-bold text-sm uppercase px-3 py-1 w-fit -mt-3">
             Trending
           </h3>
-          <div className=" p-6">
+          <div className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* LEFT SIDE (2 smaller posts) */}
               <div className="col-span-1 flex flex-col gap-6">
-                {blogs.slice(1, 4).map((post) => (
+                {allBlogs.slice(1, 4).map((post) => (
                   <div key={post.id} className="flex flex-col">
-                    <img
+                    <SafeImage
                       src={post.image}
                       alt={post.title}
                       className="w-full h-40 object-cover rounded"
                     />
                     <p className="text-xs font-bold tracking-widest text-gray-500 mt-2">
-                      {post.category}
+                      {post.category?.name}
                     </p>
                     <h3 className="font-bold text-lg leading-snug hover:underline cursor-pointer">
                       {post.title}
                     </h3>
-                    <p className="text-xs text-gray-500">{post.author}</p>
-                    <hr className=" text-gray-200 text-sm mt-2" />
+                    <p className="text-xs text-gray-500">{post.author?.username}</p>
+                    <hr className="text-gray-200 text-sm mt-2" />
                   </div>
                 ))}
               </div>
@@ -167,49 +263,26 @@ const BlogLayout = () => {
               {/* RIGHT SIDE (main featured post) */}
               <div className="col-span-2 relative">
                 <div>
-                  <img
-                    src={blogs[0].image}
-                    alt={blogs[0].title}
+                  <SafeImage
+                    src={heroBlog.image}
+                    alt={heroBlog.title}
                     className="w-full h-[400px] object-cover rounded"
                   />
-                  <div className=" mt-4 bottom-6 left-6 text-black">
+                  <div className="mt-4 bottom-6 left-6 text-black">
                     <p className="text-xs font-bold tracking-widest">
-                      {blogs[0].category}
+                      {heroBlog.category?.name}
                     </p>
                     <h2 className="text-3xl font-extrabold mt-2 max-w-lg">
-                      {blogs[0].title}
+                      {heroBlog.title}
                     </h2>
                     <p className="text-sm mt-2 text-gray-900">
-                      {trimData(blogs[0]?.description, 30)}
+                      {trimData(heroBlog.description, 30)}
                     </p>
                     <p className="text-sm uppercase tracking-wide font-semibold mt-2 text-gray-900">
-                      {blogs[0].author}
+                      {heroBlog.author?.username}
                     </p>
                   </div>
                 </div>
-                <hr className=" text-gray-200 text-sm my-2" />
-                <div>
-                  <img
-                    src={blogs[0].image}
-                    alt={blogs[0].title}
-                    className="w-full h-[400px] object-cover rounded"
-                  />
-                  <div className=" mt-4 bottom-6 left-6 text-black">
-                    <p className="text-xs font-bold tracking-widest">
-                      {blogs[0].category}
-                    </p>
-                    <h2 className="text-3xl font-extrabold mt-2 max-w-lg">
-                      {blogs[0].title}
-                    </h2>
-                    <p className="text-sm mt-2 text-gray-900">
-                      {trimData(blogs[0]?.description, 10)}
-                    </p>
-                    <p className="text-sm uppercase tracking-wide font-semibold mt-2 text-gray-900">
-                      {blogs[0].author}
-                    </p>
-                  </div>
-                </div>
-                <hr className=" text-gray-200 text-sm my-2" />
               </div>
             </div>
           </div>
@@ -221,57 +294,57 @@ const BlogLayout = () => {
             Popular
           </h3>
           <div className="p-6">
-            {blogs.map((blog, index) => (
-              <div key={index}>
+            {allBlogs.slice(0, 5).map((blog, index) => (
+              <div key={blog.id || index}>
                 <div className="flex gap-2 justify-between">
                   <div className="flex-2/3">
                     <div className="text-sm font-semibold font-serif hover:underline text-black mb-1">
-                      {blog?.title}
+                      {blog.title}
                     </div>
                     <p className="text-sm mt-2 text-gray-900">
-                      {trimData(blog?.description, 15)}
+                      {trimData(blog.description, 15)}
                     </p>
                     <div className="text-xs uppercase tracking-wider mt-2 font-semibold font-mono text-black">
-                      {blog?.author}
+                      {blog.author?.username}
                     </div>
                   </div>
 
-                  <div className=" relative  flex-1/3 flex">
-                    <div className=" my-auto w-full h-[50%] aspect-square  bg-blue-400">
-                      <img
-                        src={blog?.image}
-                        className="w-full h-full  justify-center content-center"
-                        alt={blog?.author}
+                  <div className="relative flex-1/3 flex">
+                    <div className="my-auto w-full h-[50%] aspect-square bg-blue-400">
+                      <SafeImage
+                        src={blog.image}
+                        className="w-full h-full justify-center content-center"
+                        alt={blog.author?.username}
                       />
                     </div>
                   </div>
                 </div>
-                <hr className=" text-gray-200 text-sm my-2" />
+                <hr className="text-gray-200 text-sm my-2" />
               </div>
             ))}
           </div>
         </div>
-        <hr className=" text-gray-200 text-sm my-2" />
       </div>
 
       {/* Exclusive Post */}
       <div className="flex flex-col min-h-[50vh] m-10 bg-white text-black">
-        <div className=" relative p-5 border-t-2 ">
-          <h3 className="bg-black absolute left-0 top-0   text-white font-bold text-sm uppercase px-3 py-1 w-fit -mt-3">
+        <div className="relative p-5 border-t-2">
+          <h3 className="bg-black absolute left-0 top-0 text-white font-bold text-sm uppercase px-3 py-1 w-fit -mt-3">
             Exclusive
           </h3>
         </div>
 
         <div className="flex w-full border">
-            <div className="flex p-10">
-                <div className="flex-2/3">
-                  <img src={blogs[0].image} alt=""/>
-                </div>
-                <div className="flex-1/3 ">
-                  <div className="text-2xl font-custom text-black " >{blogs[0].title}</div>
-
-                </div>
+          <div className="flex p-10">
+            <div className="flex-2/3">
+              <SafeImage src={heroBlog.image} alt={heroBlog.title} />
             </div>
+            <div className="flex-1/3">
+              <div className="text-2xl font-custom text-black">
+                {heroBlog.title}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

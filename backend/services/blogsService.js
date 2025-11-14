@@ -3,6 +3,8 @@ import Blog from "#models/Blog.js";
 import sanitizeHtml from "sanitize-html";
 import {uploadImage} from '#helper/cloudinaryHelper.js'
 
+
+// list of all the blogs
 export const getAllBlogs = async (query) => {
   try {
     const {
@@ -26,26 +28,65 @@ export const getAllBlogs = async (query) => {
       Blog.find(filter)
         .sort({ [sort_by]: sort })
         .skip((page - 1) * limit)
-        .limit(limit),
+        .limit(limit)
+        .populate('category', 'name')
+        .populate('author', 'username')
+
     ]);
+
     return { status: "success", data: { blogs, totalDoc, page, limit } };
   } catch (error) {
     console.error("Error in getAllBlogs service:", error);
   }
 };
 
+
+// get most viewed blogs 10 documents 
+export const getMostViewedBlogs = async () =>{
+  try {
+    const blogs = Blog.find().sort({views:-1}).limit(10);
+    console.log("most viewed blogs",blogs);
+
+    return {status:"success",data: {blogs}};
+  } catch (error) {
+      console.log(error)
+  }
+}
+
+// get most popular blogs 10 documents
+export const getMostPopularBlogs = async () =>{
+  try {
+    const blogs = Blog.find().sort({likes:-1}).limit(10);
+    console.log("most popular blogs",blogs);
+
+    return {status:"success",data: {blogs}};
+  } catch (error) {
+      console.log(error)
+  }
+}
+
+
 export const getBlogBySlug = async (slug) => {
   try {
-    const blog = findOneAndUpdate(
+    const blog =  await Blog.findOneAndUpdate(
       { slug: slug },
       { $inc: { views: 1 } },
       { new: true }
-    );
+
+    )
+    .populate('category', 'name')   
+    .populate('author', 'username');
+
+    
     if (!blog) {
       return { status: "error", message: "Blog not found" };
     }
+
+    console.log(blog);
     return { status: "success", data: blog };
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 export const getBlogById = async (req) => {
@@ -130,5 +171,9 @@ export default {
     addBlog,
     getBlogBySlug,
     getAllBlogs,
-    getBlogById
+    getBlogById,
+    topBlogs,
+    latestBlogs,
+    getMostPopularBlogs,
+    getMostViewedBlogs
 }
